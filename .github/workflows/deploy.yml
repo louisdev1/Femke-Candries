@@ -1,0 +1,97 @@
+name: Deploy CV to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Build site
+        run: |
+          mkdir -p _site
+          # Find the CV image (supports jpg, jpeg, png, webp)
+          CV_IMAGE=$(ls cv/cv.* 2>/dev/null | head -1)
+          IMAGE_NAME=$(basename "$CV_IMAGE")
+
+          cat > _site/index.html << EOF
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>CV</title>
+            <style>
+              *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+              body {
+                background: #0f0f0f;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Georgia', serif;
+                padding: 2rem 1rem;
+              }
+
+              .frame {
+                background: #fff;
+                padding: 1.5rem;
+                box-shadow: 0 0 0 1px #333, 0 20px 80px rgba(0,0,0,0.6);
+                max-width: 860px;
+                width: 100%;
+              }
+
+              .frame img {
+                width: 100%;
+                display: block;
+              }
+
+              .meta {
+                margin-top: 1rem;
+                text-align: center;
+                color: #555;
+                font-size: 0.75rem;
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="frame">
+              <img src="$IMAGE_NAME" alt="CV" />
+              <p class="meta">Last updated: $(date +'%B %Y')</p>
+            </div>
+          </body>
+          </html>
+          EOF
+
+          cp "$CV_IMAGE" _site/"$IMAGE_NAME"
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
