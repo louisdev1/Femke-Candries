@@ -42,44 +42,56 @@ jobs:
             <style>
               *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+              html, body {
+                height: 100%;
+                background: #1a1a1a;
+              }
+
               body {
-                background: #0f0f0f;
-                min-height: 100vh;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
-                font-family: 'Georgia', serif;
-                padding: 2rem 1rem;
+                justify-content: flex-start;
+                padding: 2rem 1rem 3rem;
+                min-height: 100%;
               }
 
               .frame {
                 background: #fff;
-                padding: 1.5rem;
-                box-shadow: 0 0 0 1px #333, 0 20px 80px rgba(0,0,0,0.6);
-                max-width: 860px;
                 width: 100%;
+                max-width: min(900px, 100%);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.3), 0 20px 60px rgba(0,0,0,0.5);
               }
 
               .frame img {
                 width: 100%;
+                height: auto;
                 display: block;
+                /* Crisp rendering — no browser downscaling blur */
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
               }
 
               .meta {
-                margin-top: 1rem;
-                text-align: center;
-                color: #555;
-                font-size: 0.75rem;
-                letter-spacing: 0.1em;
+                padding: 0.6rem 1rem;
+                background: #f5f5f5;
+                text-align: right;
+                color: #999;
+                font-size: 0.7rem;
+                letter-spacing: 0.08em;
                 text-transform: uppercase;
+                font-family: monospace;
               }
             </style>
           </head>
           <body>
             <div class="frame">
-              <img src="$IMAGE_NAME" alt="CV" />
-              <p class="meta">Last updated: $(date +'%B %Y')</p>
+              <img
+                src="$IMAGE_NAME"
+                alt="CV"
+                decoding="async"
+              />
+              <div class="meta">Updated $(date +'%B %Y')</div>
             </div>
           </body>
           </html>
